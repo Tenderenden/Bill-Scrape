@@ -7,7 +7,7 @@ USER_AGENT_STR = "Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firef
 
 def get_tauron():
     ticket = ""
-    client_id = ""
+    client_id = passes.tauron_info["client_id"]
     step1_url = "https://logowanie.tauron.pl/"
     step2_url = "https://logowanie.tauron.pl/login"
     step3_url = "https://ebok.tauron.pl/?ticket=" + ticket
@@ -15,11 +15,21 @@ def get_tauron():
     step5_url = "https://ebok.tauron.pl"
     step6_url = "https://ebok.tauron.pl/wyborKlienta"
     step7_url = "https://ebok.tauron.pl/wyborKlienta/id/" + client_id
-    r = requests.get(step1_url)
-    print(r.status_code)
-    if(r.status_code == 200):
-       print(r.headers)
-       print(r.cookies)
+    with requests.Session() as s:
+        r = s.get(step1_url)
+        if(r.status_code == 200):
+            print(r.headers)
+            print(r.cookies)
+            r = s.post(step2_url, data = {"username":passes.accounts_info["tauron"]["login"], "password":passes.accounts_info["tauron"]["password"], "service":""})
+            print("breakpoint")
+            if(r.status_code == 200):
+                with open("./response.html", mode ="wb") as localfile:
+                    localfile.write(r.content)
+                r = s.get(step7_url)
+                if(r.status_code == 200):
+                    with open("./response.html", mode ="wb") as localfile:
+                        localfile.write(r.content)
+    print("After session")
 
 
 
