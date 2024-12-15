@@ -2,6 +2,7 @@
 
 import account_info as passes
 import requests
+from bs4 import BeautifulSoup 
 
 USER_AGENT_STR = "Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0"
 
@@ -18,20 +19,16 @@ def get_tauron():
     with requests.Session() as s:
         r = s.get(step1_url)
         if(r.status_code == 200):
-            print(r.headers)
-            print(r.cookies)
             r = s.post(step2_url, data = {"username":passes.accounts_info["tauron"]["login"], "password":passes.accounts_info["tauron"]["password"], "service":""})
-            print("breakpoint")
             if(r.status_code == 200):
                 with open("./response.html", mode ="wb") as localfile:
                     localfile.write(r.content)
                 r = s.get(step7_url)
                 if(r.status_code == 200):
-                    with open("./response.html", mode ="wb") as localfile:
-                        localfile.write(r.content)
-    print("After session")
-
-
+                    parsed_html = BeautifulSoup(r.text)
+                    print(parsed_html.body.find("span", attrs={"class":"amountInfo red"}).text)
+                    # with open("./response.html", mode ="wb") as localfile:
+                    #     localfile.write(r.content)
 
 if __name__ == "__main__":
     get_tauron()
