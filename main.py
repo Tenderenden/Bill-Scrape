@@ -1,6 +1,6 @@
 # Script for scraping unpaid house bills
 
-import account_info as passes
+from account_info import acc_info
 import requests
 import re
 
@@ -17,7 +17,11 @@ def get_tauron():
     with requests.Session() as s:
         r = s.get(step1_url)
         if(r.status_code == 200):
-            r = s.post(step2_url, data = {"username":passes.accounts_info["tauron"]["login"], "password":passes.accounts_info["tauron"]["password"], "service":""})
+            r = s.post(step2_url, data = {
+                "username":acc_info["tauron"]["login"],
+                "password":acc_info["tauron"]["password"],
+                "service":""
+                })
             if(r.status_code == 200):
                 with open("./response.html", mode ="wb") as localfile:
                     localfile.write(r.content)
@@ -26,5 +30,23 @@ def get_tauron():
                     value = re.findall(regex_pattern, r.text)
                     print(value[0])
 
+def get_pgnig():
+    step1_url = "https://ebok.pgnig.pl/"
+    step2_url = "https://ebok.pgnig.pl/auth/login?api-version=3.0"
+    step3_url = "https://ebok.pgnig.pl/faktury"
+    with requests.Session() as s:
+        r = s.get(step1_url)
+        if (r.status_code == 200):
+            r = s.post(step2_url, data = {
+                "accessPin": acc_info["pgnig"]["password"],
+                "DeviceId":acc_info["pgnig"]["deviceId"],
+                "DeviceName":"Firefox wersja: 133.0",
+                "DeviceType":"Web",
+                "identificator": acc_info["pgnig"]["password"],
+                "rememberLogin":False
+                })
+            print(r.status_code)
+
 if __name__ == "__main__":
-    get_tauron()
+    # get_tauron()
+    get_pgnig()
